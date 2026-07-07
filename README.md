@@ -12,6 +12,10 @@ launch is the backend key-safety decision (see below) — not the code.
 Part of the [TraderDaddy Pro](https://traderdaddy.pro) open-source family, alongside
 [DaddyBoard](https://github.com/mphinance/daddyboard) (the reference SDK consumer).
 
+**Building it?** This is the best repo in the family to build from scratch — the
+render layer works keyless. Grab a prompt from [`PROMPTS.md`](PROMPTS.md) and paste
+it into Claude Code / Cursor; [`CLAUDE.md`](CLAUDE.md) has the pattern + the one blocker.
+
 ---
 
 ## Why this exists
