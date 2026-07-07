@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@traderdaddy/sdk": ["../traderdaddy-sdk/dist/index.d.ts"],
+      "@traderdaddy/sdk/mock": ["../traderdaddy-sdk/dist/mock.d.ts"]
+    }
+  },
+  "include": ["src/index.tsx"]
+}

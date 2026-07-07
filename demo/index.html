@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DaddyEmbed — widget playground</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #010409; color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  header { padding: 40px 24px 24px; text-align: center; border-bottom: 1px solid #21262d; }
+  header h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.3px; }
+  header h1 span { color: #58a6ff; }
+  header p { margin: 0 auto; max-width: 620px; color: #8b949e; font-size: 14px; line-height: 1.5; }
+  .keyless { display: inline-block; margin-top: 12px; padding: 3px 10px; border: 1px solid #30363d; border-radius: 999px; font-size: 12px; color: #3fb950; }
+  .controls { display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 18px; }
+  .controls label { font-size: 12px; color: #8b949e; }
+  .controls input, .controls select { background: #0d1117; color: #e6edf3; border: 1px solid #30363d; border-radius: 7px; padding: 6px 9px; font-size: 13px; }
+  .controls button { background: #238636; color: #fff; border: 0; border-radius: 7px; padding: 7px 14px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  main { max-width: 1000px; margin: 0 auto; padding: 8px 24px 64px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  section { display: grid; gap: 8px; }
+  section > h2 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #8b949e; font-weight: 600; }
+  section > code { font-size: 11px; color: #6e7681; }
+  .full { grid-column: 1 / -1; }
+  footer { text-align: center; padding: 24px; color: #6e7681; font-size: 12px; border-top: 1px solid #21262d; }
+  footer a { color: #8b949e; }
+  @media (max-width: 720px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Daddy<span>Embed</span></h1>
+    <p>Every widget below is the same SDK-backed component you'd drop on your own
+       site — rendering live-shaped <b>demo fixtures</b> with no API key. Flip one
+       flag (a key via a proxy) and the same markup goes live.</p>
+    <div class="keyless">● keyless demo mode</div>
+  </header>
+
+  <div class="controls">
+    <label>Ticker <input id="ticker" value="NVDA" size="6" /></label>
+    <label>Theme
+      <select id="theme"><option value="dark">dark</option><option value="light">light</option></select>
+    </label>
+    <button id="apply">Apply</button>
+  </div>
+
+  <main>
+    <section class="full">
+      <h2>Flow tape · <code>unusualActivity()</code></h2>
+      <div data-daddyembed data-widget="flow-tape" data-limit="7" data-theme="dark"></div>
+    </section>
+
+    <section class="full">
+      <h2>Market vitals · <code>marketStats()</code></h2>
+      <div data-daddyembed data-widget="market-vitals" data-theme="dark"></div>
+    </section>
+
+    <section>
+      <h2>Gamma bias · <code>gexTicker()</code></h2>
+      <div data-daddyembed data-widget="gamma-chip" data-ticker="NVDA" data-theme="dark"></div>
+    </section>
+
+    <section>
+      <h2>IV rank · <code>ivRank()</code></h2>
+      <div data-daddyembed data-widget="iv-rank" data-ticker="TSLA" data-theme="dark"></div>
+    </section>
+
+    <section class="full">
+      <h2>Sector heatmap · <code>sectorFlow()</code></h2>
+      <div data-daddyembed data-widget="sector-heatmap" data-theme="dark"></div>
+    </section>
+  </main>
+
+  <footer>
+    Built on <a href="https://github.com/mphinance/traderdaddy-sdk">@traderdaddy/sdk</a>
+    · part of the <a href="https://traderdaddy.pro">TraderDaddy&nbsp;Pro</a> open-source family
+  </footer>
+
+  <!-- The whole render layer, SDK inlined. Auto-mounts the [data-daddyembed] hosts above. -->
+  <script src="../dist/daddyembed.js"></script>
+  <script>
+    // Re-render every widget with the control panel's ticker/theme.
+    const main = document.querySelector('main');
+    const template = main.innerHTML;
+    document.getElementById('apply').addEventListener('click', () => {
+      const ticker = document.getElementById('ticker').value.trim().toUpperCase() || 'NVDA';
+      const theme = document.getElementById('theme').value;
+      main.innerHTML = template;
+      main.querySelectorAll('[data-daddyembed]').forEach((el) => {
+        el.dataset.theme = theme;
+        if (el.dataset.ticker) el.dataset.ticker = ticker;
+        delete el.__tdMounted;
+      });
+      window.DaddyEmbed.scan();
+    });
+  </script>
+</body>
+</html>

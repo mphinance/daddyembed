@@ -9,11 +9,10 @@
 ## What this is (and its status)
 
 Embeddable **options-flow widgets** for any website/blog/newsletter, powered by
-TraderDaddy Pro. **Status: build brief — no code yet.** The dependency it was
-blocked on ([`@traderdaddy/sdk`](https://github.com/mphinance/traderdaddy-sdk),
-v0.1.0) is shipped, so **the entire render layer can be built today against mock
-data.** The only thing gating a *public* launch is a backend key-safety decision
-(below) — not the code. The README is the spec; build to it.
+TraderDaddy Pro. **Status: render layer built (v0.1.0).** All five widgets render
+**keyless** against the SDK's demo fixtures via both entry points (UMD `<script>`
++ React). The only thing gating a *public* launch is a backend key-safety decision
+(below) — not the code. `npm install && npm run build && npm run demo` to see it.
 
 ## The one pattern
 
@@ -29,31 +28,30 @@ owns all of it. This repo is exactly one thing: **how the data looks.**
 Because the SDK ships keyless demo mode with identical types to live, build,
 theme, and screenshot every widget with **no key**, then flip one flag for live.
 
-## Intended structure (build to this)
+## Structure (built)
 
-- **Data layer — one file.** Wrap `TraderDaddy` once; nothing else imports the
-  SDK. This is where mock-vs-live, `baseUrl` (proxy), and caching are decided:
-  ```ts
-  export const td = new TraderDaddy({
-    mock: !runtimeKeyPresent, apiKey: runtimeKey, baseUrl,
-    cache: true, backoff: true,
-  });
-  ```
-- **Widgets — one SDK method → one typed response → one Shadow-DOM component:**
+- **`src/data.ts` — the data layer.** The ONLY file that imports the SDK.
+  `getClient(cfg)` caches one `TraderDaddy` per distinct config; keyless ⇒
+  `mock: true`. Widgets get the client typed as `Client`, never import the SDK.
+- **Widgets (`src/widgets/*.ts`) — one SDK method → one typed response → one
+  Shadow-DOM component.** Each is a `WidgetDef` (`name`, `css`, `fetch`, `render`):
 
-  | Widget | SDK method | Type |
-  |---|---|---|
-  | Flow tape | `unusualActivity({ ticker?, limit })` | `UnusualActivity` |
-  | Market vitals bar | `marketStats()` | `MarketStats` |
-  | Gamma bias chip | `gexTicker(symbol)` | `GexTicker` |
-  | IV-rank strip | `ivRank(symbol)` | `IvRank` |
-  | Sector heatmap | `sectorFlow()` | `SectorFlow` |
+  | Widget | file | SDK method | Type |
+  |---|---|---|---|
+  | Flow tape | `flowTape.ts` | `unusualActivity({ ticker?, limit })` | `UnusualActivity` |
+  | Market vitals | `marketVitals.ts` | `marketStats()` | `MarketStats` |
+  | Gamma chip | `gammaChip.ts` | `gexTicker(symbol)` | `GexTicker` |
+  | IV-rank strip | `ivRankStrip.ts` | `ivRank(symbol)` | `IvRank` |
+  | Sector heatmap | `sectorHeatmap.ts` | `sectorFlow(window)` | `SectorFlow` |
 
-- **Two entry points:** a vanilla **UMD** `<script>` (config from `data-*` attrs,
-  mounts into a Shadow root, inlines the SDK) and an **ESM React** package
-  (`@traderdaddy/embed`, lists `@traderdaddy/sdk` as a dep).
-- **Shadow DOM / scoped styles** so widgets never collide with host-page CSS.
-- **Poll only while `isMarketOpen()`.** Theme tokens reused from DaddyBoard.
+- **`src/widgets/base.ts` — `mountWidget()`** owns all the runtime: Shadow-DOM
+  isolation, initial skeleton, the market-gated poll loop, error/last-good-data
+  handling, and the attribution footer. Widgets only supply `fetch` + `render`.
+- **Two entry points:** `src/umd.ts` → `dist/daddyembed.js` (vanilla `<script>`,
+  config from `data-*`, mounts into a Shadow root, **SDK inlined**, sets
+  `window.DaddyEmbed`); `src/index.tsx` → `@traderdaddy/embed` (React components
+  `<TDFlowTape/>` etc., SDK + react **external**).
+- **`isMarketOpen()`-gated polling** (default 30s). Theme tokens in `theme.ts`.
 
 ## 🔴 The one real blocker — key safety (decide BEFORE public launch)
 

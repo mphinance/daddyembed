@@ -3,18 +3,16 @@
 > An embeddable live **options-flow widget** powered by TraderDaddy Pro — drop a
 > smart-money flow tape into any website, blog, or newsletter.
 
-**Status:** 🚧 Not built yet — this README is the build brief. The dependency it
-was blocked on now exists: [`@traderdaddy/sdk`](https://github.com/mphinance/traderdaddy-sdk)
-is shipped (v0.1.0, typed + keyless demo mode), so the entire **render layer can
-be built today against mock data**. The only thing still gating a *public*
-launch is the backend key-safety decision (see below) — not the code.
+**Status:** ✅ Render layer built (v0.1.0). All five widgets render **keyless**
+against the SDK's demo fixtures — `npm install && npm run build && npm run demo`
+and open the playground. The only thing still gating a *public* launch is the
+backend key-safety decision (see below) — not the code.
 
 Part of the [TraderDaddy Pro](https://traderdaddy.pro) open-source family, alongside
 [DaddyBoard](https://github.com/mphinance/daddyboard) (the reference SDK consumer).
 
-**Building it?** This is the best repo in the family to build from scratch — the
-render layer works keyless. Grab a prompt from [`PROMPTS.md`](PROMPTS.md) and paste
-it into Claude Code / Cursor; [`CLAUDE.md`](CLAUDE.md) has the pattern + the one blocker.
+**Extending it?** Grab a prompt from [`PROMPTS.md`](PROMPTS.md) and paste it into
+Claude Code / Cursor; [`CLAUDE.md`](CLAUDE.md) has the pattern + the one blocker.
 
 ---
 
@@ -134,31 +132,41 @@ Pick one before shipping widely:
 Until one exists, ship DaddyEmbed in **demo/self-host mode only** and gate the
 public `<script>` embed behind option 2.
 
-## Build milestones
+## Repo layout
 
-1. **Data layer + flow-tape widget** against `new TraderDaddy({ mock: true })`.
-   Render `unusualActivity().data[]` with tier coloring. Ship one working widget
-   before adding more.
-2. **UMD bundle + `data-*` config** — `<script>` mount into Shadow DOM, config
-   from attributes. Then the **React package**.
-3. **Remaining widgets** — market vitals bar, gamma bias chip, IV-rank strip,
-   sector heatmap — same method→type→component shape.
-4. **Theme tokens** (reuse DaddyBoard's `tokens.css`); responsive.
-5. **Attribution / CTA footer** ("Powered by TraderDaddy Pro").
-6. **Resolve the key-safety model** (proxy vs `td_pub_`) before enabling the
-   public embed. Document both integration paths.
-7. **Demo/playground page** showing every widget (works keyless via `mock:true`).
+| Path | What |
+|---|---|
+| `src/data.ts` | The data layer — the **only** file that imports the SDK. `getClient()` decides mock-vs-live. |
+| `src/theme.ts` | Scoped design tokens + shared base CSS (dark/light). |
+| `src/format.ts` | Display helpers (premium, %, sparkline, escaping). No DOM. |
+| `src/widgets/base.ts` | `mountWidget()` — Shadow-DOM isolation, skeleton, market-gated poll loop, footer. Defines `WidgetDef`. |
+| `src/widgets/*.ts` | The five widgets — each one SDK method → one type → one component. |
+| `src/widgets/registry.ts` | Every widget keyed by its `data-widget` name. |
+| `src/mount.ts` | `mount(el, { widget, … })` — shared by both entry points. |
+| `src/umd.ts` | Vanilla `<script>` entry → `dist/daddyembed.js` (SDK inlined, self-mounting). |
+| `src/index.tsx` | React entry → `@traderdaddy/embed` (`<TDFlowTape />` etc.; SDK + react external). |
+| `demo/index.html` | Keyless playground showing every widget. |
 
-## Picking this up in a new session
+## Commands
 
-Prereq is **done**: [`@traderdaddy/sdk`](https://github.com/mphinance/traderdaddy-sdk)
-is built and published-ready. Read its
-[app playbook](https://github.com/mphinance/traderdaddy-sdk/blob/main/docs/BUILDING-APPS.md)
-first — the DaddyEmbed section is written for exactly this repo.
+```bash
+npm install
+npm run typecheck   # tsc --noEmit
+npm run build       # esbuild → dist/daddyembed.js (UMD) + dist/index.js/.cjs (React)
+npm run build:types # tsc → dist/*.d.ts for the React package
+npm run demo        # build + serve the playground at localhost:5178/demo/
+```
 
-Build the whole render layer keyless against `@traderdaddy/sdk/mock` — you can
-finish every widget with no key. The blocker for *public* launch is the
-key-safety decision above, not the code; **raise it before you start.**
+## What's built vs what's next
+
+- ✅ Data layer, all five widgets, both entry points (UMD + React), theme tokens,
+  attribution footer, keyless demo playground. Every widget renders with **no key**.
+- 🔴 **Key-safety model for the _public_ embed** (proxy vs `td_pub_`, below) — the
+  one thing to resolve before shipping the `<script>` tag on strangers' sites.
+- 🚧 Publishing `@traderdaddy/embed` to npm + a CDN build of `daddyembed.js`.
+
+Adding a widget? Follow the same shape: one SDK method → one type → one
+`WidgetDef` in `src/widgets/`, register it, done. See [`PROMPTS.md`](PROMPTS.md).
 
 ## MCP tools used (via the SDK)
 

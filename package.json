@@ -1,0 +1,69 @@
+{
+  "name": "@traderdaddy/embed",
+  "version": "0.1.0",
+  "description": "Embeddable live options-flow widgets powered by TraderDaddy Pro — drop a smart-money flow tape, gamma chip, IV-rank strip, market-vitals bar, or sector heatmap into any site. One <script> tag or a React component. Keyless demo mode built in.",
+  "keywords": [
+    "traderdaddy",
+    "options-flow",
+    "widget",
+    "embed",
+    "gamma-exposure",
+    "iv-rank",
+    "react",
+    "web-component"
+  ],
+  "homepage": "https://traderdaddy.pro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mphinance/daddyembed.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./daddyembed.js": "./dist/daddyembed.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "./dist/daddyembed.js"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:types": "tsc -p tsconfig.build.json",
+    "watch": "node scripts/build.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "demo": "node scripts/build.mjs && node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "@traderdaddy/sdk": "file:../traderdaddy-sdk"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.0",
+    "esbuild": "^0.23.0",
+    "react": "^18.3.0",
+    "typescript": "^5.5.0"
+  }
+}
